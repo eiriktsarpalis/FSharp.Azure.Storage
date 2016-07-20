@@ -15,6 +15,8 @@ module internal Utilities =
     
     open System.Reflection
     open Microsoft.FSharp.Reflection
+
+    let allTypes = BindingFlags.Public ||| BindingFlags.NonPublic
     
     let inline (|?) (lhs: 'a option) rhs = (if lhs.IsSome then lhs.Value else rhs)
     let inline toNullable (opt: 'a option) = if opt.IsSome then Nullable(opt.Value) else Nullable()

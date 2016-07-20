@@ -36,6 +36,7 @@ module Table =
         | Replace of entity : 'T * etag : string
         | ForceReplace of entity : 'T
         | Merge of entity : 'T * etag : string
+        | MergePartial of key:EntityIdentifier * Expr<'T -> 'T> * etag : string
         | ForceMerge of entity : 'T
         | Delete of entity : 'T * etag : string
         | ForceDelete of entity : 'T

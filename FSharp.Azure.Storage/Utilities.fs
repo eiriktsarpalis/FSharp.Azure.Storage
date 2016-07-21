@@ -17,6 +17,15 @@ module internal Utilities =
     open Microsoft.FSharp.Reflection
 
     let allTypes = BindingFlags.Public ||| BindingFlags.NonPublic
+
+    type MemberInfo with
+        member m.ContainsAttribute<'T> () : bool=
+            m.GetCustomAttributes(typeof<'T>, true) |> Array.isEmpty |> not
+
+        member m.TryGetAttribute<'T> () : 'T option =
+            match m.GetCustomAttributes(typeof<'T>, true) with
+            | [||] -> None
+            | attrs -> attrs.[attrs.Length - 1] :?> 'T |> Some
     
     let inline (|?) (lhs: 'a option) rhs = (if lhs.IsSome then lhs.Value else rhs)
     let inline toNullable (opt: 'a option) = if opt.IsSome then Nullable(opt.Value) else Nullable()

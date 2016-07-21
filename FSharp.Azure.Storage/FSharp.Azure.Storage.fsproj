@@ -164,6 +164,7 @@
     <Compile Include="Types.fs" />
     <Compile Include="Converter.fs" />
     <Compile Include="RecordInfo.fs" />
+    <Compile Include="Query.fs" />
     <Compile Include="Table.fs" />
     <None Include="app.config" />
     <None Include="paket.references" />

@@ -12,6 +12,22 @@ type PartitionKeyAttribute () = inherit Attribute()
 [<Sealed; AttributeUsage(AttributeTargets.Property, AllowMultiple = false)>]
 type RowKeyAttribute () = inherit Attribute()
 
+[<Sealed; AttributeUsage(AttributeTargets.Property, AllowMultiple = false)>]
+type ETagAttribute () = inherit Attribute()
+
+[<Sealed; AttributeUsage(AttributeTargets.Property, AllowMultiple = false)>]
+type TimestampAttribute () = inherit Attribute()
+
+[<Sealed; AttributeUsage(AttributeTargets.Property, AllowMultiple = false)>]
+type NoDefaultValueAttribute () = inherit Attribute()
+
+/// Specify a custom Table storage attribute name for the given record field.
+[<AttributeUsage(AttributeTargets.Property, AllowMultiple = false)>]
+type CustomNameAttribute(name : string) =
+    inherit System.Attribute()
+    do if name = null then raise <| ArgumentNullException("'Name' parameter cannot be null.")
+    member __.Name = name
+
 /// Declares that carrying should be ignored on serialization/deserialization.
 type IgnorePropertyAttribute = Microsoft.WindowsAzure.Storage.Table.IgnorePropertyAttribute
 

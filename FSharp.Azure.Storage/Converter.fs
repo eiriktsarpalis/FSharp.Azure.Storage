@@ -1,7 +1,7 @@
 ﻿namespace FSharp.Azure.Storage.Table
 
 open System
-open FSharp.AWS.DynamoDB.TypeShape
+open TypeShape
 open Microsoft.WindowsAzure.Storage.Table
 
 module internal Converters =
@@ -95,29 +95,29 @@ module internal Converters =
             let msg = sprintf "cannot convert %A to type %O." tv.Value typeof<'T>
             raise <| new InvalidCastException(msg)
 
-        match getShape fieldType with
-        | :? ShapeBool -> mkConverter true EdmType.Boolean None Bool (function Bool b -> b | v -> Convert.ToBoolean v.Value) :> _
-        | :? ShapeByte -> mkConverter true EdmType.Int32 None (int >> Int32) (fun v -> Convert.ToByte v.Value) :> _
-        | :? ShapeSByte -> mkConverter true EdmType.Int32 None (int >> Int32) (fun v -> Convert.ToSByte v.Value) :> _
-        | :? ShapeInt16 -> mkConverter true EdmType.Int32 None (int >> Int32) (fun v -> Convert.ToInt16 v.Value) :> _
-        | :? ShapeInt32 -> mkConverter true EdmType.Int32 None Int32 (function Int32 i -> i | v -> Convert.ToInt32 v.Value) :> _
-        | :? ShapeInt64 -> mkConverter true EdmType.Int64 None Int64 (function Int64 i -> i | v -> Convert.ToInt64 v.Value) :> _
-        | :? ShapeUInt16 -> mkConverter true EdmType.Int32 None (int >> Int32) (fun v -> Convert.ToUInt16 v.Value) :> _
-        | :? ShapeUInt32 -> mkConverter true EdmType.Int64 None (int64 >> Int64) (fun v -> Convert.ToUInt32 v.Value) :> _
-        | :? ShapeUInt64 -> raise <| new ArgumentException("Azure table storage does not support uint64 fields.")
-        | :? ShapeSingle -> mkConverter true EdmType.Double None (double >> Double) (function Double d -> single d | v -> Convert.ToSingle v.Value) :> _
-        | :? ShapeDouble -> mkConverter true EdmType.Double None Double (function Double d -> d | v -> Convert.ToDouble v.Value) :> _
-        | :? ShapeChar -> mkConverter true EdmType.String None (fun c -> String(string c)) (fun v -> Convert.ToChar v.Value) :> _
-        | :? ShapeString -> mkConverter true EdmType.String None String (function String s -> s | v -> Convert.ToString v.Value) :> _
-        | :? ShapeGuid -> mkConverter true EdmType.Guid (Some Guid.Empty) Guid (function Guid g -> g | String s -> Guid.Parse s | v -> ic v) :> _
-        | :? ShapeByteArray -> mkConverter true EdmType.Binary None Bytes (function Bytes bs -> bs | v -> ic v) :> _
-        | :? ShapeTimeSpan -> mkConverter true EdmType.Int64 (Some TimeSpan.Zero) (fun (t:TimeSpan) -> Int64 t.Ticks) (function Int64 i -> TimeSpan.FromTicks i | v -> ic v) :> _
-        | :? ShapeDateTime -> mkConverter true EdmType.DateTime (Some DateTime.MinValue) (fun d -> DateTimeOffset(new DateTimeOffset(d))) (function DateTimeOffset d -> d.LocalDateTime | v -> ic v) :> _
-        | :? ShapeDateTimeOffset -> mkConverter true EdmType.DateTime (Some DateTimeOffset.MinValue) DateTimeOffset (function DateTimeOffset d -> d | v -> ic v) :> _
-        | ShapeEnum s ->
+        match TypeShape.Resolve fieldType with
+        | Shape.Bool -> mkConverter true EdmType.Boolean None Bool (function Bool b -> b | v -> Convert.ToBoolean v.Value) :> _
+        | Shape.Byte -> mkConverter true EdmType.Int32 None (int >> Int32) (fun v -> Convert.ToByte v.Value) :> _
+        | Shape.SByte -> mkConverter true EdmType.Int32 None (int >> Int32) (fun v -> Convert.ToSByte v.Value) :> _
+        | Shape.Int16 -> mkConverter true EdmType.Int32 None (int >> Int32) (fun v -> Convert.ToInt16 v.Value) :> _
+        | Shape.Int32 -> mkConverter true EdmType.Int32 None Int32 (function Int32 i -> i | v -> Convert.ToInt32 v.Value) :> _
+        | Shape.Int64 -> mkConverter true EdmType.Int64 None Int64 (function Int64 i -> i | v -> Convert.ToInt64 v.Value) :> _
+        | Shape.UInt16 -> mkConverter true EdmType.Int32 None (int >> Int32) (fun v -> Convert.ToUInt16 v.Value) :> _
+        | Shape.UInt32 -> mkConverter true EdmType.Int64 None (int64 >> Int64) (fun v -> Convert.ToUInt32 v.Value) :> _
+        | Shape.UInt64 -> raise <| new ArgumentException("Azure table storage does not support uint64 fields.")
+        | Shape.Single -> mkConverter true EdmType.Double None (double >> Double) (function Double d -> single d | v -> Convert.ToSingle v.Value) :> _
+        | Shape.Double -> mkConverter true EdmType.Double None Double (function Double d -> d | v -> Convert.ToDouble v.Value) :> _
+        | Shape.Char -> mkConverter true EdmType.String None (fun c -> String(string c)) (fun v -> Convert.ToChar v.Value) :> _
+        | Shape.String -> mkConverter true EdmType.String None String (function String s -> s | v -> Convert.ToString v.Value) :> _
+        | Shape.Guid -> mkConverter true EdmType.Guid (Some Guid.Empty) Guid (function Guid g -> g | String s -> Guid.Parse s | v -> ic v) :> _
+        | Shape.ByteArray -> mkConverter true EdmType.Binary None Bytes (function Bytes bs -> bs | v -> ic v) :> _
+        | Shape.TimeSpan -> mkConverter true EdmType.Int64 (Some TimeSpan.Zero) (fun (t:TimeSpan) -> Int64 t.Ticks) (function Int64 i -> TimeSpan.FromTicks i | v -> ic v) :> _
+        | Shape.DateTime -> mkConverter true EdmType.DateTime (Some DateTime.MinValue) (fun d -> DateTimeOffset(new DateTimeOffset(d))) (function DateTimeOffset d -> d.LocalDateTime | v -> ic v) :> _
+        | Shape.DateTimeOffset -> mkConverter true EdmType.DateTime (Some DateTimeOffset.MinValue) DateTimeOffset (function DateTimeOffset d -> d | v -> ic v) :> _
+        | Shape.Enum s ->
             s.Accept {
                 new IEnumVisitor<IFieldConverter> with
-                    member __.VisitEnum<'E, 'U when 'E : enum<'U>> () =
+                    member __.Visit<'E, 'U when 'E : enum<'U>> () =
                         mkConverter false EdmType.String None
                             (fun (e : 'E) -> String (e.ToString())) 
                             (function String s -> Enum.Parse(typeof<'E>, s) :?> 'E 
@@ -125,10 +125,10 @@ module internal Converters =
                         :> _
             }
 
-        | ShapeNullable s ->
+        | Shape.Nullable s ->
             s.Accept {
                 new INullableVisitor<IFieldConverter> with
-                    member __.VisitNullable<'T when 'T : (new : unit -> 'T) and 'T :> ValueType and 'T : struct> () =
+                    member __.Visit<'T when 'T : (new : unit -> 'T) and 'T :> ValueType and 'T : struct> () =
                         let tconv = extractConverter<'T> ()
                         mkConverter false tconv.EdmType (Some (Nullable<_>()))
                             (fun (tn : Nullable<'T>) -> if tn.HasValue then tconv.FromField tn.Value else Blank)
@@ -136,10 +136,10 @@ module internal Converters =
                         :> _
             }
 
-        | ShapeFSharpOption s ->
+        | Shape.FSharpOption s ->
             s.Accept {
                 new IFSharpOptionVisitor<IFieldConverter> with
-                    member __.VisitFSharpOption<'T> () =
+                    member __.Visit<'T> () =
                         let tconv = extractConverter<'T> ()
                         mkConverter false tconv.EdmType (Some None)
                             (function None -> Blank | Some t -> tconv.FromField t)
@@ -158,7 +158,7 @@ module internal Converters =
 
 
     let mkSerializerConverterUntyped (serializer : IPropertySerializer) (t : Type) =
-        getShape(t).Accept {
-            new IFunc<IFieldConverter> with
-                member __.Invoke<'T> () = mkSerializerConverter<'T> serializer :> _
+        TypeShape.Resolve(t).Accept {
+            new ITypeShapeVisitor<IFieldConverter> with
+                member __.Visit<'T> () = mkSerializerConverter<'T> serializer :> _
         }

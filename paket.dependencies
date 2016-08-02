@@ -13,4 +13,4 @@ nuget FsUnit.xUnit
 nuget Nuget.CommandLine
 nuget FAKE
 github fsharp/FAKE modules/Octokit/Octokit.fsx
-github fsprojects/FSharp.AWS.DynamoDB src/FSharp.AWS.DynamoDB/Utils/TypeShape.fs
+github eiriktsarpalis/TypeShape src/TypeShape/TypeShape.fs

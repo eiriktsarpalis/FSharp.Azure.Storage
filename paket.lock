@@ -2,7 +2,7 @@ REDIRECTS: ON
 FRAMEWORK: >= NET40
 NUGET
   remote: https://www.nuget.org/api/v2
-    FAKE (4.32)
+    FAKE (4.36)
     FSharp.Core (3.1.2.5) - redirects: force
     FSharp.Quotations.Evaluator (1.0.7)
     FsUnit.xUnit (1.4.1)
@@ -23,7 +23,7 @@ NUGET
       Microsoft.Bcl.Build (>= 1.0.14)
     Newtonsoft.Json (9.0.1)
     NuGet.CommandLine (3.4.3)
-    Octokit (0.20)
+    Octokit (0.21.1)
       Microsoft.Net.Http  - framework: net40, net40-full
     System.Spatial (5.7)
     WindowsAzure.Storage (7.1.2)
@@ -49,7 +49,7 @@ NUGET
     xunit.runner.visualstudio (2.1.0) - version_in_path: true
 GITHUB
   remote: fsharp/FAKE
-    modules/Octokit/Octokit.fsx (094228d817b5bdb97f896a7d4a994d31e66be529)
+    modules/Octokit/Octokit.fsx (8fd20ae42c996060bc8bedb821edfb50517cdd8b)
       Octokit (>= 0.20)
-  remote: fsprojects/FSharp.AWS.DynamoDB
-    src/FSharp.AWS.DynamoDB/Utils/TypeShape.fs (f9c36783ae0e178475da770a296d256846949c3b)
+  remote: eiriktsarpalis/TypeShape
+    src/TypeShape/TypeShape.fs (8864d59d2a3bb151305952897748ccc2c1cbfc62)
